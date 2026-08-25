@@ -10,7 +10,9 @@ public class game {
         deck = new ArrayList<Card>();
         players = new ArrayList<Player>();
         Player player1 = new Player("Player 1");
+        players.add(player1);
         Player cpu = new Player("CPU");
+        players.add(cpu);
         players.add(player1);
         players.add(cpu);
 
@@ -30,19 +32,24 @@ public class game {
         deck.add(new Card("plus_10"));
         deck.add(new Card("second_chance"));
         deck.add(new Card("times_2"));
+    }
 
+    public void startGame() {
+        Player player1 = players.get(0);
+        Player cpu = players.get(1);
         dealCard(player1);
         dealCard(cpu);
         System.out.println("Welcome to Flip Seven!\n You are Player 1.");
         System.out.println("Your hand: " + player1.getHand());
         System.out.println("CPU's hand: " + cpu.getHand());
+        boolean isPlaying = true;
 
         Scanner kb = new Scanner(System.in);
-        while (true) {
+        while (isPlaying) {
             String player1State = player1.checkState();
             String cpuState = cpu.checkState();
             if (player1State.equals("busted") || cpuState.equals("busted")) {
-                break;
+                isPlaying = false;
             } else if (player1State.equals("frozen")) {
                 System.out.println("You are frozen and cannot draw a card this round.");
                 dealCard(cpu);
@@ -56,18 +63,23 @@ public class game {
                     dealCard(cpu);
                     System.out.println("CPU's hand: " + cpu.getHand());
                 } else if (input.equals("2")) {
-                    break;
+                    isPlaying = false;
                 }
                 if (player1State.equals("busted") || cpuState.equals("busted")) {
-                    break;
+                    isPlaying = false;
                 }
             }
         }
         System.out.println("The round is over!");
         System.out.println("Your hand: " + player1.getHand());
+        System.out.println("Your total: " + player1.checkTotal());
         System.out.println("CPU's hand: " + cpu.getHand());
+        System.out.println("CPU's total: " + cpu.checkTotal());
+        System.out.println("Are you ready to play again? (y/n)");
+        String input = kb.nextLine();
     }
 
+    
     public void dealCard(Player player) {
         if (!deck.isEmpty()) {
             Collections.shuffle(deck);
