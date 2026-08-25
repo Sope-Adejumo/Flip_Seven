@@ -7,7 +7,6 @@ public class game {
     private ArrayList<Player> players;
 
     public game() {
-        deck = new ArrayList<Card>();
         players = new ArrayList<Player>();
         Player player1 = new Player("Player 1");
         players.add(player1);
@@ -16,6 +15,11 @@ public class game {
         players.add(player1);
         players.add(cpu);
 
+        resetDeck();
+    }
+
+    private void resetDeck() {
+        deck = new ArrayList<Card>();
         deck.add(new Card("0"));
         for (int i = 1; i <= 12; i++) {
             for (int j = 1; j <= i; j++) {
@@ -37,14 +41,22 @@ public class game {
     public void startGame() {
         Player player1 = players.get(0);
         Player cpu = players.get(1);
+        System.out.println("Welcome to Flip Seven!\n You are Player 1.");
+
+        Scanner kb = new Scanner(System.in);
+        boolean playAgain = true;
+        while (playAgain) {
+            playAgain = startRound(kb, player1, cpu);
+        }
+    }
+
+    private boolean startRound(Scanner kb, Player player1, Player cpu) {
         dealCard(player1);
         dealCard(cpu);
-        System.out.println("Welcome to Flip Seven!\n You are Player 1.");
         System.out.println("Your hand: " + player1.getHand());
         System.out.println("CPU's hand: " + cpu.getHand());
         boolean isPlaying = true;
 
-        Scanner kb = new Scanner(System.in);
         while (isPlaying) {
             String player1State = player1.checkState();
             String cpuState = cpu.checkState();
@@ -77,6 +89,7 @@ public class game {
         System.out.println("CPU's total: " + cpu.checkTotal());
         System.out.println("Are you ready to play again? (y/n)");
         String input = kb.nextLine();
+        return input.equalsIgnoreCase("y");
     }
 
     
