@@ -5,6 +5,7 @@ import java.util.*;
 public class game {
     private ArrayList<Card> deck;
     private ArrayList<Player> players;
+    private int roundCount = 0;
 
     public game() {
         players = new ArrayList<Player>();
@@ -12,10 +13,12 @@ public class game {
         players.add(player1);
         Player cpu = new Player("CPU");
         players.add(cpu);
-        players.add(player1);
-        players.add(cpu);
 
         resetDeck();
+    }
+
+    public ArrayList<Player> getState(){
+        return players;
     }
 
     private void resetDeck() {
@@ -27,7 +30,10 @@ public class game {
             }
         }
         deck.add(new Card("flip_3"));
-        deck.add(new Card("flip_7"));
+        deck.add(new Card("flip_3"));
+        deck.add(new Card("flip_3"));
+        deck.add(new Card("freeze"));
+        deck.add(new Card("freeze"));
         deck.add(new Card("freeze"));
         deck.add(new Card("plus_2"));
         deck.add(new Card("plus_4"));
@@ -35,26 +41,28 @@ public class game {
         deck.add(new Card("plus_8"));
         deck.add(new Card("plus_10"));
         deck.add(new Card("second_chance"));
+        deck.add(new Card("second_chance"));
+        deck.add(new Card("second_chance"));
         deck.add(new Card("times_2"));
     }
 
     public void startGame() {
         Player player1 = players.get(0);
         Player cpu = players.get(1);
-        System.out.println("Welcome to Flip Seven!\n You are Player 1.");
 
         Scanner kb = new Scanner(System.in);
         boolean playAgain = true;
         while (playAgain) {
-            playAgain = startRound(kb, player1, cpu);
+            playAgain = startRound(player1, cpu);
+            player1.resetHand();
+            cpu.resetHand();
         }
     }
 
-    private boolean startRound(Scanner kb, Player player1, Player cpu) {
+    private boolean startRound(Player player1, Player cpu) {
+        roundCount++;
         dealCard(player1);
         dealCard(cpu);
-        System.out.println("Your hand: " + player1.getHand());
-        System.out.println("CPU's hand: " + cpu.getHand());
         boolean isPlaying = true;
 
         while (isPlaying) {
@@ -63,33 +71,64 @@ public class game {
             if (player1State.equals("busted") || cpuState.equals("busted")) {
                 isPlaying = false;
             } else if (player1State.equals("frozen")) {
-                System.out.println("You are frozen and cannot draw a card this round.");
+                // System.out.println("You are frozen and cannot draw a card this round.");
                 dealCard(cpu);
-                System.out.println("CPU's hand: " + cpu.getHand());
+                // System.out.println("CPU's hand: " + cpu.getHand().toString());
             } else {
-                System.out.println("Press 1 to draw a card. Press 2 to quit this round.");
-                String input = kb.nextLine();
-                if (input.equals("1")) {
+                // System.out.println("Press 1 to draw a card. Press 2 to quit this round.");
+                // String input = kb.nextLine();
+                // if (input.equals("1")) {
                     dealCard(player1);
-                    System.out.println("Your hand: " + player1.getHand());
+                    // System.out.println("Your hand: " + player1.getHand().toString().toString());
+                    String player1Hand = player1.getHand().toString();
+                    if (player1Hand.contains("flip_3")){
+                        // System.out.println("You drew a flip_3 card! Who would you like to use it on? (1) CPU or (2) Yourself?");
+                        // String flip3Input = kb.nextLine();
+                        // if (flip3Input.equals("1")) {
+                        //     dealCard(cpu);
+                        //     dealCard(cpu);
+                        //     dealCard(cpu);
+                        //     // System.out.println("You used the flip_3 card on the CPU! The CPU has drawn 3 cards.");
+                        //     cpu.removeFromHand("flip_3");
+                        // } else if (flip3Input.equals("2")) {
+                        //     dealCard(player1);
+                        //     dealCard(player1);
+                        //     dealCard(player1);
+                        //     // System.out.println("You used the flip_3 card on yourself! You have drawn 3 cards.");
+                        //     player1.removeFromHand("flip_3");
+                        // }
+                    }
+                    if (player1Hand.contains("freeze")){
+                        // System.out.println("You drew a freeze card! Who would you like to use it on? (1) CPU or (2) Yourself?");
+                        // String freezeInput = kb.nextLine();
+                        // if (freezeInput.equals("1")) {
+                        //     cpu.updateState("frozen");
+                        //     // System.out.println("You used the freeze card on the CPU! The CPU is frozen.");
+                        //     player1.removeFromHand("freeze");
+                        // } else if (freezeInput.equals("2")) {
+                        //     player1.updateState("frozen");
+                        //     // System.out.println("You used the freeze card on yourself! You are frozen.");
+                        //     player1.removeFromHand("freeze");
+                        // }
+                    }
                     dealCard(cpu);
-                    System.out.println("CPU's hand: " + cpu.getHand());
-                } else if (input.equals("2")) {
-                    isPlaying = false;
-                }
+                    // System.out.println("CPU's hand: " + cpu.getHand().toString());
+                // } else if (input.equals("2")) {
+                //     isPlaying = false;
+                // }
                 if (player1State.equals("busted") || cpuState.equals("busted")) {
                     isPlaying = false;
                 }
             }
         }
-        System.out.println("The round is over!");
-        System.out.println("Your hand: " + player1.getHand());
-        System.out.println("Your total: " + player1.checkTotal());
-        System.out.println("CPU's hand: " + cpu.getHand());
-        System.out.println("CPU's total: " + cpu.checkTotal());
-        System.out.println("Are you ready to play again? (y/n)");
-        String input = kb.nextLine();
-        return input.equalsIgnoreCase("y");
+        // System.out.println("The round is over!");
+        // System.out.println("Your hand: " + player1.getHand().toString());
+        // System.out.println("Your total: " + player1.checkTotal());
+        // System.out.println("CPU's hand: " + cpu.getHand().toString());
+        // System.out.println("CPU's total: " + cpu.checkTotal());
+        // System.out.println("Are you ready to play again? (y/n)");
+        // String input = kb.nextLine();
+        return true; 
     }
 
     

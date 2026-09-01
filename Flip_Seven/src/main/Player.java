@@ -6,6 +6,7 @@ public class Player {
     private String name;
     private ArrayList<Card> hand = new ArrayList<Card>();
     private String state = "active";
+    private int total = 0;
 
     public Player(String name) {
         this.name = name;
@@ -13,11 +14,23 @@ public class Player {
     public String getName(){
         return name;
     }
-    public String getHand() {
-        return hand.toString();
+    public ArrayList<Card> getHand() {
+        return hand;
     }
     public void addToHand(Card card) {
         hand.add(card);
+    }
+    public void removeFromHand(String cardID) {
+        for (Card card : hand) {
+            if (card.getCardID().equals(cardID)) {
+                hand.remove(card);
+                break;
+            }
+        }
+    }
+
+    public void updateState(String newState) {
+        state = newState;
     }
 
     public String checkState() {
@@ -35,10 +48,11 @@ public class Player {
     }
 
     public int checkTotal() {
-        int total = 0;
         for (Card card : hand) {
             String cardID = card.getCardID();
-            if (cardID.equals("flip_3") || cardID.equals("flip_7") || cardID.equals("freeze") || cardID.equals("second_chance")) {
+
+            // To-do: make the logic for the special cards work better, and change to Flip-Seven's actual rules for calculating the total.
+            if (cardID.equals("flip_3") || cardID.equals("freeze") || cardID.equals("second_chance")) {
                 continue;
             } else if (cardID.equals("plus_2")) {
                 total += 2;
@@ -57,5 +71,10 @@ public class Player {
             }
         }
         return total;
+    }
+
+    public void resetHand() {
+        hand.clear();
+        state = "active";
     }
 }
