@@ -51,7 +51,6 @@ public class Player {
         for (Card card : hand) {
             String cardID = card.getCardID();
 
-            // To-do: make the logic for the special cards work better, and change to Flip-Seven's actual rules for calculating the total.
             if (cardID.equals("flip_3") || cardID.equals("freeze") || cardID.equals("second_chance")) {
                 continue;
             } else if (cardID.equals("plus_2")) {

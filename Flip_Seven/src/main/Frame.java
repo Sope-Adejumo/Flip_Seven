@@ -9,8 +9,11 @@ public class Frame extends JFrame implements MouseListener{
         super(framename);
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        add(new Panel());
+        Panel panel = new Panel();
+        add(panel);
         setVisible(true);
+        panel.setFocusable(true);
+        panel.requestFocus();
     }
 
     public void mousePressed(MouseEvent e){};

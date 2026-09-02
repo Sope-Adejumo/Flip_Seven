@@ -6,6 +6,11 @@ public class game {
     private ArrayList<Card> deck;
     private ArrayList<Player> players;
     private int roundCount = 0;
+    
+    private boolean gameInitialized = false;
+    private boolean isPlaying = false;
+    private String gameMode = "waiting_for_start";  
+    private String lastCardDrawn = ""; 
 
     public game() {
         players = new ArrayList<Player>();
@@ -19,6 +24,22 @@ public class game {
 
     public ArrayList<Player> getState(){
         return players;
+    }
+    
+    public String getGameMode() {
+        return gameMode;
+    }
+    
+    public String getLastCardDrawn() {
+        return lastCardDrawn;
+    }
+    
+    public int getRoundCount() {
+        return roundCount;
+    }
+    
+    public boolean isGamePlaying() {
+        return isPlaying;
     }
 
     private void resetDeck() {
@@ -46,89 +67,123 @@ public class game {
         deck.add(new Card("times_2"));
     }
 
-    public void startGame() {
-        Player player1 = players.get(0);
-        Player cpu = players.get(1);
-
-        Scanner kb = new Scanner(System.in);
-        boolean playAgain = true;
-        while (playAgain) {
-            playAgain = startRound(player1, cpu);
-            player1.resetHand();
-            cpu.resetHand();
+    public void init() {
+        if (!gameInitialized) {
+            gameInitialized = true;
+            startNewRound();
         }
     }
-
-    private boolean startRound(Player player1, Player cpu) {
+    
+    public void processInput(int key) {
+        if (!gameInitialized) return;
+        
+        Player player1 = players.get(0);
+        Player cpu = players.get(1);
+        
+        if (gameMode.equals("waiting_for_start")) {
+            gameMode = "waiting_for_action";
+            isPlaying = true;
+        }
+        else if (gameMode.equals("waiting_for_action")) {
+            handleMainAction(key, player1, cpu);
+        }
+        else if (gameMode.equals("waiting_for_flip3_choice")) {
+            handleFlip3Choice(key, player1, cpu);
+        }
+        else if (gameMode.equals("waiting_for_freeze_choice")) {
+            handleFreezeChoice(key, player1, cpu);
+        }
+    }
+    
+    private void startNewRound() {
         roundCount++;
+        Player player1 = players.get(0);
+        Player cpu = players.get(1);
+        
         dealCard(player1);
         dealCard(cpu);
-        boolean isPlaying = true;
-
-        while (isPlaying) {
-            String player1State = player1.checkState();
-            String cpuState = cpu.checkState();
-            if (player1State.equals("busted") || cpuState.equals("busted")) {
-                isPlaying = false;
-            } else if (player1State.equals("frozen")) {
-                // System.out.println("You are frozen and cannot draw a card this round.");
-                dealCard(cpu);
-                // System.out.println("CPU's hand: " + cpu.getHand().toString());
-            } else {
-                // System.out.println("Press 1 to draw a card. Press 2 to quit this round.");
-                // String input = kb.nextLine();
-                // if (input.equals("1")) {
-                    dealCard(player1);
-                    // System.out.println("Your hand: " + player1.getHand().toString().toString());
-                    String player1Hand = player1.getHand().toString();
-                    if (player1Hand.contains("flip_3")){
-                        // System.out.println("You drew a flip_3 card! Who would you like to use it on? (1) CPU or (2) Yourself?");
-                        // String flip3Input = kb.nextLine();
-                        // if (flip3Input.equals("1")) {
-                        //     dealCard(cpu);
-                        //     dealCard(cpu);
-                        //     dealCard(cpu);
-                        //     // System.out.println("You used the flip_3 card on the CPU! The CPU has drawn 3 cards.");
-                        //     cpu.removeFromHand("flip_3");
-                        // } else if (flip3Input.equals("2")) {
-                        //     dealCard(player1);
-                        //     dealCard(player1);
-                        //     dealCard(player1);
-                        //     // System.out.println("You used the flip_3 card on yourself! You have drawn 3 cards.");
-                        //     player1.removeFromHand("flip_3");
-                        // }
-                    }
-                    if (player1Hand.contains("freeze")){
-                        // System.out.println("You drew a freeze card! Who would you like to use it on? (1) CPU or (2) Yourself?");
-                        // String freezeInput = kb.nextLine();
-                        // if (freezeInput.equals("1")) {
-                        //     cpu.updateState("frozen");
-                        //     // System.out.println("You used the freeze card on the CPU! The CPU is frozen.");
-                        //     player1.removeFromHand("freeze");
-                        // } else if (freezeInput.equals("2")) {
-                        //     player1.updateState("frozen");
-                        //     // System.out.println("You used the freeze card on yourself! You are frozen.");
-                        //     player1.removeFromHand("freeze");
-                        // }
-                    }
-                    dealCard(cpu);
-                    // System.out.println("CPU's hand: " + cpu.getHand().toString());
-                // } else if (input.equals("2")) {
-                //     isPlaying = false;
-                // }
-                if (player1State.equals("busted") || cpuState.equals("busted")) {
-                    isPlaying = false;
-                }
+        gameMode = "waiting_for_start";
+        isPlaying = false;
+    }
+    
+    private void handleMainAction(int key, Player player1, Player cpu) {
+        if (key == 1) {
+            dealCard(player1);
+            
+            String player1Hand = player1.getHand().toString();
+            if (player1Hand.contains("flip_3")) {
+                lastCardDrawn = "flip_3";
+                gameMode = "waiting_for_flip3_choice";
+                return;
             }
+            if (player1Hand.contains("freeze")) {
+                lastCardDrawn = "freeze";
+                gameMode = "waiting_for_freeze_choice";
+                return;
+            }
+            
+            dealCard(cpu);
+            
+            checkRoundEnd(player1, cpu);
+            gameMode = "waiting_for_action";
+        } 
+        else if (key == 2) {
+            endRound(player1, cpu);
         }
-        // System.out.println("The round is over!");
-        // System.out.println("Your hand: " + player1.getHand().toString());
-        // System.out.println("Your total: " + player1.checkTotal());
-        // System.out.println("CPU's hand: " + cpu.getHand().toString());
-        // System.out.println("CPU's total: " + cpu.checkTotal());
-        // System.out.println("Are you ready to play again? (y/n)");
-        // String input = kb.nextLine();
-        return true; 
+    }
+    
+    private void handleFlip3Choice(int key, Player player1, Player cpu) {
+        if (key == 1) {
+            dealCard(cpu);
+            dealCard(cpu);
+            dealCard(cpu);
+            player1.removeFromHand("flip_3");
+        } 
+        else if (key == 2) {
+            dealCard(player1);
+            dealCard(player1);
+            dealCard(player1);
+            player1.removeFromHand("flip_3");
+        }
+        
+        dealCard(cpu);
+        checkRoundEnd(player1, cpu);
+        gameMode = "waiting_for_action";
+    }
+    
+    private void handleFreezeChoice(int key, Player player1, Player cpu) {
+        if (key == 1) {
+            cpu.updateState("frozen");
+            player1.removeFromHand("freeze");
+        } 
+        else if (key == 2) {
+            player1.updateState("frozen");
+            player1.removeFromHand("freeze");
+        }
+        
+        dealCard(cpu);
+        checkRoundEnd(player1, cpu);
+        gameMode = "waiting_for_action";
+    }
+    
+    private void checkRoundEnd(Player player1, Player cpu) {
+        String player1State = player1.checkState();
+        String cpuState = cpu.checkState();
+        if (player1State.equals("busted") || cpuState.equals("busted")) {
+            endRound(player1, cpu);
+        }
+    }
+    
+    private void endRound(Player player1, Player cpu) {
+        String player1State = player1.checkState();
+        String cpuState = cpu.checkState();
+               
+        isPlaying = false;
+        gameMode = "waiting_for_start";
+        
+        player1.resetHand();
+        cpu.resetHand();
+        startNewRound();
     }
 
     
