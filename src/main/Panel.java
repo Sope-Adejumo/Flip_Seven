@@ -10,17 +10,12 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.awt.Graphics;
 import java.io.File;
 
 public class Panel extends JPanel implements MouseListener {
     int cnt;
     Window window = SwingUtilities.getWindowAncestor(this);
-    if(window instanceof Frame)
-    {
-        cnt = ((Frame) window).getCount();
-    }
-    game game1 = new game(cnt);
+    game game1;
     BufferedImage zero;
     BufferedImage one;
     BufferedImage two;
@@ -45,11 +40,17 @@ public class Panel extends JPanel implements MouseListener {
     BufferedImage times_2;
 
     public Panel() {
+
         setBackground(Color.BLACK);
+        if (window instanceof Frame) {
+            cnt = ((Frame) window).getCount();
+        }
+        game1 = new game(cnt);
         game1.init();
         addMouseListener(this);
         setFocusable(true);
         requestFocus();
+        
 
         try {
             zero = ImageIO.read(new File("Flip_Seven\\src\\cards\\0.png"));
