@@ -6,26 +6,43 @@ public class game {
     private ArrayList<Card> deck;
     private ArrayList<Player> players;
     private int roundCount = 0;
-    
+    private int currentPlayerIndex = 0;
+
     private boolean gameInitialized = false;
     private boolean isPlaying = false;
-    private String gameMode = "waiting_for_start";  
-    private String lastCardDrawn = ""; 
+    private String gameMode = "waiting_for_start";
+    private String lastCardDrawn = "";
 
     public game(int cnt) {
         players = new ArrayList<Player>();
-        // Player player1 = new Player("Player 1");
-        // players.add(player1);
-        // Player cpu = new Player("CPU");
-        // players.add(cpu);
-
-
+        int playerCount = Math.max(2, Math.min(cnt, 5));
+        for (int i = 0; i < playerCount; i++) {
+            players.add(new Player("Player " + (i + 1)));
+        }
 
         resetDeck();
     }
 
-    public ArrayList<Player> getState(){
+    public ArrayList<Player> getState() {
         return players;
+    }
+
+    public Player getCurrentPlayer() {
+        if (players.isEmpty()) {
+            return null;
+        }
+        return players.get(currentPlayerIndex);
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    public void advanceToNextPlayer() {
+        if (players.isEmpty()) {
+            return;
+        }
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
     
     public String getGameMode() {
@@ -78,32 +95,31 @@ public class game {
     
     public void processInput(int key) {
         if (!gameInitialized) return;
-        
-        Player player1 = players.get(0);
-        Player cpu = players.get(1);
-        
+
+        Player current = getCurrentPlayer();
+        Player other = players.size() > 1 ? players.get(1) : current;
+
         if (gameMode.equals("waiting_for_start")) {
             gameMode = "waiting_for_action";
             isPlaying = true;
         }
         else if (gameMode.equals("waiting_for_action")) {
-            handleMainAction(key, player1, cpu);
+            handleMainAction(key, current, other);
         }
         else if (gameMode.equals("waiting_for_flip3_choice")) {
-            handleFlip3Choice(key, player1, cpu);
+            handleFlip3Choice(key, current, other);
         }
         else if (gameMode.equals("waiting_for_freeze_choice")) {
-            handleFreezeChoice(key, player1, cpu);
+            handleFreezeChoice(key, current, other);
         }
     }
-    
+
     private void startNewRound() {
         roundCount++;
-        Player player1 = players.get(0);
-        Player cpu = players.get(1);
-        
-        dealCard(player1);
-        dealCard(cpu);
+        for (Player player : players) {
+            dealCard(player);
+        }
+        currentPlayerIndex = 0;
         gameMode = "waiting_for_start";
         isPlaying = false;
     }

@@ -31,10 +31,10 @@ public class startPanel extends JPanel implements KeyListener {
 
         int x = key - '0';
         Window window = SwingUtilities.getWindowAncestor(this);
-        if (window instanceof Frame) { 
-            ((Frame) window).setCount(x);
+        if (window instanceof Frame) {
             Frame frame = (Frame) window;
-            frame.setContentPane(new Panel());
+            frame.setCount(x);
+            frame.setContentPane(new Panel(x));
             frame.revalidate();
             frame.repaint();
         }

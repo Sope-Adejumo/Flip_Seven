@@ -6,20 +6,27 @@ public class Player {
     private String name;
     private ArrayList<Card> hand = new ArrayList<Card>();
     private String state = "active";
-    private int total = 0;
 
     public Player(String name) {
         this.name = name;
     }
-    public String getName(){
+
+    public String getName() {
         return name;
     }
+
     public ArrayList<Card> getHand() {
         return hand;
     }
+
+    public String getState() {
+        return state;
+    }
+
     public void addToHand(Card card) {
         hand.add(card);
     }
+
     public void removeFromHand(String cardID) {
         for (Card card : hand) {
             if (card.getCardID().equals(cardID)) {
@@ -40,14 +47,16 @@ public class Player {
         }
         if (uniqueCards.size() != hand.size()) {
             state = "busted";
-        }
-        if (uniqueCards.contains("freeze")) {
+        } else if (uniqueCards.contains("freeze")) {
             state = "frozen";
+        } else {
+            state = "active";
         }
         return state;
     }
 
     public int checkTotal() {
+        int total = 0;
         for (Card card : hand) {
             String cardID = card.getCardID();
 
