@@ -247,6 +247,9 @@ public class Game {
         pendingCards.clear();
         pendingOwners.clear();
         lastCardDrawn = "";
+        for (int i = 0; i < players.size(); i++) {
+            drawCard(players.get(i));
+        }
         gameMode = MODE_WAITING_FOR_ACTION;
         isPlaying = true;
         message = "Round " + roundCount + ". " + players.get(dealerIndex).getName()
